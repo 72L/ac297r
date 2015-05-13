@@ -103,7 +103,7 @@ The multi-label prediction for the entire article is then an average of the bina
 This improvement, we think, comes from the classifier learning the grammar of the sentences containing these keywords.  For example, text scraped from a webpage containing a public health article with the word “election” next to a country name may indicate that the country name is not the subject of the public health article. Instead, the country may be mentioned as part of a link on the sidebar of the webpage. On the other hand, if the word “Ebola” is mentioned next to particular country name, then it may indicate that the country is relevant to the public health article.</p>
 
 <p>
-We investigated adding HTML tag counts (such as occurrence of “<a>”) in addition to n-grams as features to improve the detection of words that are mentioned as part of sidebar links instead of in the main body of the article. This approach did not improve the area under the ROC curve significantly.</p>
+We investigated adding HTML tag counts (such as occurrence of “&lt;A&gt;”) in addition to n-grams as features to improve the detection of words that are mentioned as part of sidebar links instead of in the main body of the article. This approach did not improve the area under the ROC curve significantly.</p>
 
 <p>
 Future work on the automatic location tagging process should investigate using higher resolution location names (such as city or province names) as well as better scraping techniques to obtain higher quality textual data.</p>

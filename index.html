@@ -18,7 +18,7 @@
 <script type="text/javascript"
   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
 
   </head>
@@ -31,25 +31,40 @@
         <p>Ryan Lee, Sail Wu, Jacob Zhu <br/>
           Instructor: Pavlos Protopapas <br/>
           Teaching Fellow: Rahul Dave <br/>
-          Collaborator: Mauricio Santillana <br/><br/>
-          <strong>AC297r, Spring 2015</strong><br/>
-          Harvard Institute of Applied Computational Sciences (IACS) <br/>
+          Collaborator: Mauricio Santillana <br/></p>
+          <p style="margin-bottom:0px;"> Contents <a href="#" id="toggle-contents">[show/hide]</a></p>
+
+          <ul id='contents'>
+            <li><a href='#abstract'>Abstract</a></li>
+            <li><a href='#intro'>Introduction</a></li>
+            <a href='#part1'>Part I: Curation</a>
+            <li><a href='#part2'>Part II: Prediction</a></li>
+            <li><a href='#part3'>Part II: Visualization</a></li>
+            <li><a href='#conc'>Conclusion</a></li>
+            <a href='#ack'>Acknowledgements</a>
+            <li><a href='#refs'>References</a></li>
+          </ul>
+
+          <p style="margin-top:25px;"><strong>AC 297r, Spring 2015</strong><br/>
+          Harvard School of Engineering and Applied Sciences<br/>
+          Institute of Applied Computational Sciences (<a href="http://iacs.seas.harvard.edu/">IACS</a>) <br/>
           </p>
 
         <p class="view"><a href="https://github.com/72L/social-media-epidemiology">View the Project on GitHub</a></p>
 
+
       </header>
       <section>
         <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Abstract</h3>
+<a id="abstract" class="anchor" href="#abstract" aria-hidden="true"><span class="octicon octicon-link"></span></a>Abstract</h3>
 
 <p>Tools that augment official health agency reports with media data (social media in addition to traditional news media) to track the progression of a disease have been extremely valuable to epidemiologists. Our collaborators at Healthmap have developed a successful organization committed to providing up-to-date visualizations and compilations of media alerts for diseases such as Dengue fever and the flu. We contributed to three major areas of Healthmap. Firstly, we create an automatic tagging tool that organizes incoming media alerts by disease and location, easing the burden on human alert curation. Secondly, we explore novel ways to model the number of cases of a disease over time, improving their prediction so that hospitals can prepare healthcare resources in advance. We show that our tagging and prediction methods improve upon reasonable baselines by at least 10%. Lastly, we build a map and a timeline visualization that allows users to explore and learn from media data in an interactive way. Our tools improve the Healthmap process so that media data can be even more useful to epidemiologists.</p>
 <p>
 
 <h3>
-<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
+<a id="intro" class="anchor" href="#intro" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
-<p>Healthmap (www.healthmap.org) is a collaboration between epidemiologists and computational scientists to track in real-time ongoing outbreaks of major diseases [1]. The projects emphasize the use of media data as well as official health agency reports. We use the term “media” broadly to refer to social media in addition to traditional news media. Media provides real-time coverage of diseases around the world much more quickly than official health reports. For instance, the use of Twitter to predict the number of cases of flu in real-time has been well studied in academia [2-4].  </p>
+<p>Healthmap (<a href="www.healthmap.org">www.healthmap.org</a>) is a collaboration between epidemiologists and computational scientists to track in real-time ongoing outbreaks of major diseases [<a class="ref-link" href="#ref1">1</a>]. The projects emphasize the use of media data as well as official health agency reports. We use the term “media” broadly to refer to social media in addition to traditional news media. Media provides real-time coverage of diseases around the world much more quickly than official health reports. For instance, the use of Twitter to predict the number of cases of flu in real-time has been well studied in academia [<a class="ref-link" href="#ref2">2-4</a>].  </p>
 
 <p>A variety of sub-projects at Healthmap include predicting disease case counts based on multiple data sources (i.e. Twitter, Google Flu Trends, insurance claims) as well as visualizing cases and reports of Dengue fever. Visualizations that show when and where diseases (or reports of diseases) happen are very useful retroactively and in real time. Tools that visualize curated media reports enable epidemiologists and hospitals to better understand how a disease develops and prepare healthcare resources or advise government interventions.</p>
 
@@ -62,7 +77,7 @@
 <p>Our last contribution is a visualization that displays the Ebola media alerts on a map and a timeline, allowing epidemiologists to discover patterns in the data at a glance. Similar visualizations already exist in Healthmap; however, we take a fresh approach by implementing new, interactive features that furthers discovery through data exploration.</p>
 
 <h3>
-<a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part I. Automatic Curation of Incoming News Alerts</h3>
+<a id="part1" class="anchor" href="#part1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part I. Automatic Curation of Incoming News Alerts</h3>
 
 <p>News alerts related to public health are collected with automated web scraping tools at Healthmap every day. In order to organize this massive collection of links, healthmap curators tediously label each document with relevant information such as location and disease. One of the most important goals of our current work is to make that process faster using machine learning.</p>
 
@@ -144,13 +159,14 @@ The average lags/errors of the dates detected by parsedatetime per article are s
 
 <p>We therefore decided not to pursue automatic date prediction for several reasons. The difficulty of improving the parsedatetime tool is twofold. Firstly dates must be extracted accurately given the textual information. Secondly, out of the multiple possible dates extracted per article, the correct date must be picked out. Both of these tasks would have required significant work given the current state of the parsedatetime results. Moreover, improvement work, which may or may not provide any significant gain in accuracy, may not be so helpful anyway. The data displayed in Healthmap (and often in epidemiology literature) is at a weekly resolution, and the errors of our baseline method (Figure 4A) is within 7 days. This means that the current baseline approach is probably good enough for all intensive purposes.  Therefore, we decided to focus our attention to other aspects of the project.</p>
 
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part II. Prediction of Weekly Ebola Case Counts</h3>
+<h3>
+<a id="part2" class="anchor" href="#part2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part II. Prediction of Weekly Ebola Case Counts</h3>
 
 <p>
 Official health organizations (i.e. WHO) report weekly case counts that are lagged by a few weeks due to the time it takes to manually count cases, sometimes over remote geographical regions. An estimate of the current weekly case count of a particular disease is extremely valuable to epidemiologists and health workers. The data allows hospitals to prepare resources accordingly to meet expected demand.</p>
 
 <p>
-The collaborators working at Healthmap have built tools to predict the number of cases of flu using mainly autoregressive models currently accepted in the scientific literature [5]. We apply the same models to Ebola, and make modifications which improve the prediction performance.</p>
+The collaborators working at Healthmap have built tools to predict the number of cases of flu using mainly autoregressive models currently accepted in the scientific literature [<a class="ref-link" href="#ref5">5</a>]. We apply the same models to Ebola, and make modifications which improve the prediction performance.</p>
 
 <p>
 We work with a dataset of geotagged Tweets obtained from the Healthmap Twitter listener, collected over the course of a year from March 2014 to March 2015. We only retrieved Tweets mentioning the term “Ebola” within a geographic boundary defined by a rectangle with its northwest corner at (12.91° N, 15.55° W) and its southwest corner at (4.06° N, 7.16° W). This captures all Tweets from Guinea, Sierra Leone, and Liberia (Figure 5). Since few Twitter users live in western Africa and even fewer have geo-tagging turned on, we were only working with 3126 Tweets in total. Official case counts were obtained from WHO reports online.</p>
@@ -171,17 +187,17 @@ Where $C_t$ is the number of cases in the current week, and $C_{t-i}$ is the num
 <p class="caption"><strong>Figure 6. Autocorrelation function (ACF) and Partial autocorrelation function (PACF) for Ebola cases time series.</strong> The autocorrelation and partial autocorrelation functions were used as diagnostic tools to determine the appropriateness of fit for an autoregressive (AR) and/or moving average (MA) model. The PACP declines around lag 2 or 3 while the ACF declines more slowly.
 </p>
 
-<p>Models with an added Tweet component are often used in literature to make use of the real-time nature of social media data [5]. We use the following model to incorporate the weekly Tweets time series.</p>
+<p>Models with an added Tweet component are often used in literature to make use of the real-time nature of social media data [<a class="ref-link" href="#ref5">5</a>]. We use the following model to incorporate the weekly Tweets time series.</p>
 
 <p>$$C_t = \sum_{i=1}^2\alpha_iC_{t-i} + \sum_{i=0}^2\beta_iT_{t-i}$$</p>
 
 <p>Where $T_t$ is the number of Tweets in the current week, $T_{t-i}$ is the number of Tweets $i$ weeks before, and $\beta_i$ are parameters estimated with maximum likelihood methods.</p>
 
 <p>
-To improve upon the current model used in literature, we decided to add features to the data that are determined in an unsupervised manner with topic modelling and emotions keywords. Topic modelling was performed to extract a latent clustering of Tweets that probabilistically discuss different topics. A modified pLSI model (which is similar to Latent Dirichlet Allocation [6]) was used. Each Tweet is modeled as a bag of words belonging to one topic. Each of the words in the Tweet are chosen from a multinomial distribution over the vocabulary, where the distributions are determined on a per-topic basis. Expectation maximization was used in the maximum likelihood estimation of the parameters, and the number of topics (three) was chosen by inspection. This number was chosen because it seemed to produce topic words that made the most sense. A more detailed derivation can be found in the Appendix. Three topics were detected and the top words belonging in each topic were used to haracterize their “meaning”. Topic 1 had a high probability associated with words related to news outlet reports such as “cases”, “west Africa”, and “news”. Topic 2, we concluded, was mostly about vaccines and treatment, having high probability for words such as “#giveustheserum” and “vaccine”. The word “Guinea” had high probability in Tweets belonging to Topic 2 as well. The third topic seemed to have more general words pertaining to Ebola, and we could not make out a consistent theme. The proportion of labeled Tweets classified under each topic over time are shown in Figure 7 (bottom panel). Each Tweet was categorized as belonging to exactly one topic.</p>
+To improve upon the current model used in literature, we decided to add features to the data that are determined in an unsupervised manner with topic modelling and emotions keywords. Topic modelling was performed to extract a latent clustering of Tweets that probabilistically discuss different topics. A modified pLSI model (which is similar to Latent Dirichlet Allocation [<a class="ref-link" href="#ref6">6</a>]) was used. Each Tweet is modeled as a bag of words belonging to one topic. Each of the words in the Tweet are chosen from a multinomial distribution over the vocabulary, where the distributions are determined on a per-topic basis. Expectation maximization was used in the maximum likelihood estimation of the parameters, and the number of topics (three) was chosen by inspection. This number was chosen because it seemed to produce topic words that made the most sense. A more detailed derivation can be found in the Appendix. Three topics were detected and the top words belonging in each topic were used to haracterize their “meaning”. Topic 1 had a high probability associated with words related to news outlet reports such as “cases”, “west Africa”, and “news”. Topic 2, we concluded, was mostly about vaccines and treatment, having high probability for words such as “#giveustheserum” and “vaccine”. The word “Guinea” had high probability in Tweets belonging to Topic 2 as well. The third topic seemed to have more general words pertaining to Ebola, and we could not make out a consistent theme. The proportion of labeled Tweets classified under each topic over time are shown in Figure 7 (bottom panel). Each Tweet was categorized as belonging to exactly one topic.</p>
 
 <p>
-Previous work has explored adding heuristically determined categorizations of Tweets as features to improve modelling [3]. We perform a variation of this categorization by labelling the Tweets with five emotion classes that have been studied in natural language processing literature [7]. The five emotion categories are joy, sadness, anger, affection and fear. Keywords in each category were compiled from previous work [7] and Tweets containing these words were classified into their respective categories. Tweets containing words in multiple categories were counted twice. Tweets not in English were translated to English. Not many Tweets were classified with emotions due to suboptimal translation and the fact that list of keywords for each emotion was not comprehensive. Tweets not labeled with an emotion were not included in the emotion time series analysis. The proportions of labeled Tweets classified under each emotion over time are shown in Figure 7 (top panel).</p>
+Previous work has explored adding heuristically determined categorizations of Tweets as features to improve modelling [<a class="ref-link" href="#ref3">3</a>]. We perform a variation of this categorization by labelling the Tweets with five emotion classes that have been studied in natural language processing literature [<a class="ref-link" href="#ref7">7</a>]. The five emotion categories are joy, sadness, anger, affection and fear. Keywords in each category were compiled from previous work [<a class="ref-link" href="#ref7">7</a>] and Tweets containing these words were classified into their respective categories. Tweets containing words in multiple categories were counted twice. Tweets not in English were translated to English. Not many Tweets were classified with emotions due to suboptimal translation and the fact that list of keywords for each emotion was not comprehensive. Tweets not labeled with an emotion were not included in the emotion time series analysis. The proportions of labeled Tweets classified under each emotion over time are shown in Figure 7 (top panel).</p>
 
 <img alt="FIGURE-6-topic-and-emotions.png" src="images/image74.png" style="margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title="">
 <p class="caption"><strong>Figure 7. Detected Topic and Emotion Tweet Proportions over Time.</strong> (Top) Proportion of Tweets labeled with emotions in each emotion category, over time. Keywords identified as markers for the five emotions (joy, affection, sadness, fear, and anger) were a priori identified and detected in Tweets. (Bottom) Proportion of Tweets that were categorized into each topic using topic modelling, during each week.
@@ -214,7 +230,7 @@ Moreover, we might posit that a prediction model should produce smooth results t
 <h4>Hidden Markov Model</h4>
 
 <p>
-We propose a hidden Markov model shown in Figure 9A. At each time point, there are 4 hidden states that correspond to 4 different populations. We use the well known SEIR epidemic model [8-10] to model the dynamics of the Ebola outbreak. The state $S_t$ represents the population susceptible to Ebola at time $t$. The state $E_t$ represents the population that has been exposed to Ebola but is not infectious at time $t$. The state $I_t$ represents the population that is infected and infectious at time $t$. The state $R_t$ represents the population that has recovered at time $t$. A proportion of these $R$ cases are those who are dead. People flow through the 4 possible states in the order: S to E to I to R, and the rates of change of the proportion of the entire population in each state is well described by known differential equations [8]. The differential equations describing the dynamics of the SEIR model were discretized as has been done similarly in others’ work [11], as follows:</p>
+We propose a hidden Markov model shown in Figure 9A. At each time point, there are 4 hidden states that correspond to 4 different populations. We use the well known SEIR epidemic model [<a class="ref-link" href="#ref8">8-10</a>] to model the dynamics of the Ebola outbreak. The state $S_t$ represents the population susceptible to Ebola at time $t$. The state $E_t$ represents the population that has been exposed to Ebola but is not infectious at time $t$. The state $I_t$ represents the population that is infected and infectious at time $t$. The state $R_t$ represents the population that has recovered at time $t$. A proportion of these $R$ cases are those who are dead. People flow through the 4 possible states in the order: S to E to I to R, and the rates of change of the proportion of the entire population in each state is well described by known differential equations [<a class="ref-link" href="#ref8">8</a>]. The differential equations describing the dynamics of the SEIR model were discretized as has been done similarly in others’ work [<a class="ref-link" href="#ref11">11</a>], as follows:</p>
 
 $$S_t = (1-\alpha I_{t-1})S_{t-1}$$
 $$E_t = \alpha I_{t-1}S_{t-1} + (1-\beta)E_{t-1}$$
@@ -262,7 +278,7 @@ In addition, the HMM was optimized by maximising the likelihood of observing thr
 <p>
 We understand that there are limitations of the current assumptions of this HMM. Firstly, we assumed that the Tweets are proportional to the number of infected people. However, in reality, Tweets could also be dependent on the proportion of the population in the exposed (E) state in addition to just the proportion of the population in the infected (I) state. Furthermore, the number of Tweets in the previous week may play a large role in determining the number of Tweets in the next week (accounting for hype and network effects). Future work should investigate adding these complex dependencies to the model. </p>
 
-<h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part III. Visualization of Curated Media Reports Covering Ebola</h3> 
+<h3><a id="part3" class="anchor" href="#part3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part III. Visualization of Curated Media Reports Covering Ebola</h3> 
 <p>
 We built a tool for data visualization and exploration so that the curated media data could be explored by epidemiologists with ease. The tool is a Javascript-powered visualization that takes as input a JSON file of data that has been curated by humans or the tagging tool discussed above. It automatically generates a responsive webpage that is interactive and intuitive to use. Figure 9 highlights selected features of the webpage that is created. The demo we built uses a set of Ebola media alerts from March 2014 to March 2015.</p>
 
@@ -275,7 +291,7 @@ We used a Javascript package called AMCharts to display the information on a map
 <img alt="FIGURE-9---visualization.png" src="images/image64.png" style=" margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title="">
 <p class="caption"><strong>Figure 10. Visualization web page displaying curated media data for Ebola.</strong> Here, we highlight three major features of the visualization and data exploration tool. (A) Each dot represents a location reported by alerts, and clicking on them brings up a panel of alert links. The map allows the user to pan and zoom to discover alerts at other areas around the world. The squares are shown for alerts that covering entire countries in general, instead of a specific provinces or cities. The opacity of the squares and dots represent the relative number of alerts for that location. (B) There is an interactive timeline beneath the map displaying the number of cumulative cases and deaths, as well as the number of alerts per day. The user can choose to display the non-cumulative graphs of the cases and deaths as well. Using the overview timeline window at the top, the user can zoom to different sections in time to examine the fine details. (C) Moving the sliders on the overview timeline window will also update the map alerts, so that the user can generate an animation that displays the spread of alerts over time.</p>
 
-<h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion</h3> 
+<h3><a id="conc" class="anchor" href="#conc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion</h3> 
 
 <p>
 Our goal for this project was to contribute useful computational tools to the Healthmap effort. We identified three major areas of the Healthmap process that could be improved.</p>
@@ -288,45 +304,64 @@ Thirdly, we built a map and timeline visualization that allows users to explore 
 <p>
 This project had multiple learning outcomes that enriched our educational experience. Several of the techniques used in this project were completely new to us when we started. These included topic modelling, hidden Markov modelling, and the Javascript visualization library called AMCharts. This project gave us the opportunity to experience the full stack of the data science process, from raw data organization and labelling, to prediction, and to visualization. In the end, we were able to provide three major contributions to our collaborators at Healthmap who will be able to use our tools to better serve epidemiologists and hospitals fighting disease.</p>
 
-<h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Acknowledgements</h3> 
+<h3><a id="ack" class="anchor" href="#ack" aria-hidden="true"><span class="octicon octicon-link"></span></a>Acknowledgements</h3> 
 
 <p>
 We would like to thank the AC297r staff, especially Pavlos and Rahul for their support and guidance. We would like to thank Nico Preston, Wesley Chen, and Jared Hawkins for their help in obtaining data from Healthmap databases and advice regarding previous Healthmap work. We would like to thank Kriste Krstovski for helpful discussion about topic modelling. This work would not have been possible or as enjoyable without the engaging discussions we had with faculty, staff, and our fellow students at IACS.</p>
 
-<h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h3> 
+<h3><a id="refs" class="anchor" href="#refs" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h3> 
 
 <ol>
-<li>
+<li><a id="ref1" class="anchor" href="#ref1" aria-hidden="true"></a>
 Brownstein, J. S., Freifeld, C. C., Reis, B. Y., &amp; Mandl, K. D. (2008). Surveillance Sans Frontieres: Internet-based emerging infectious disease intelligence and the HealthMap project. PLoS medicine, 5(7), e151.</li>
-<li>
+<li><a id="ref2" class="anchor" href="#ref2" aria-hidden="true"></a>
 Achrekar, H., Gandhe, A., Lazarus, R., Yu, S. H., &amp; Liu, B. (2011, April). Predicting flu trends using twitter data. In Computer Communications Workshops (INFOCOM WKSHPS), 2011 IEEE Conference on (pp. 702-707). IEEE.</li>
-<li>
+<li><a id="ref3" class="anchor" href="#ref3" aria-hidden="true"></a>
 Lamb, A., Paul, M. J., &amp; Dredze, M. (2013, June). Separating Fact from Fear: Tracking Flu Infections on Twitter. In HLT-NAACL (pp. 789-795).</li>
-<li>
+<li><a id="ref4" class="anchor" href="#ref4" aria-hidden="true"></a>
 Culotta, A. (2010, July). Towards detecting influenza epidemics by analyzing Twitter messages. In Proceedings of the first workshop on social media analytics (pp. 115-122). ACM.</li>
-<li>
+<li><a id="ref5" class="anchor" href="#ref5" aria-hidden="true"></a>
 Nagar, R., Yuan, Q., Freifeld, C. C., Santillana, M., Nojima, A., Chunara, R., &amp; Brownstein, J. S. (2014). A Case Study of the New York City 2012-2013 Influenza Season With Daily Geocoded Twitter Data From Temporal and Spatiotemporal Perspectives. Journal of medical Internet research, 16(10).</li>
-<li>
+<li><a id="ref6" class="anchor" href="#ref6" aria-hidden="true"></a>
 Mei, Q., &amp; Zhai, C. (2001). A note on EM algorithm for probabilistic latent semantic analysis. In Proceedings of the International Conference on Information and Knowledge Management, CIKM.</li>
-<li>
+<li><a id="ref7" class="anchor" href="#ref7" aria-hidden="true"></a>
 Qadir, A., &amp; Riloff, E. Learning Emotion Indicators from Tweets: Hashtags, Hashtag Patterns, and Phrases.</li>
-<li>
+<li><a id="ref8" class="anchor" href="#ref8" aria-hidden="true"></a>
 Hethcote, H. W. (2000). The mathematics of infectious diseases. SIAM review,42(4), 599-653.</li>
-<li>
+<li><a id="ref9" class="anchor" href="#ref9" aria-hidden="true"></a>
 Wearing, H. J., Rohani, P., &amp; Keeling, M. J. (2005). Appropriate models for the management of infectious diseases. PLoS medicine, 2(7), e174.</li>
-<li>
+<li><a id="ref10" class="anchor" href="#ref10" aria-hidden="true"></a>
 Lekone, P. E., &amp; Finkenstädt, B. F. (2006). Statistical inference in a stochastic epidemic SEIR model with control intervention: Ebola as a case study.Biometrics, 62(4), 1170-1177.</li>
-<li>
+<li><a id="ref11" class="anchor" href="#ref11" aria-hidden="true"></a>
 Pasquali, C.  (2014). On the SIR Equations and Their Transform into a Markov Transition Matrix (or, the Markovization of the SIR Model). The Pasqualian, http://thepasqualian.com/?p=1862.</li>
 </ol>
 
 
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/72L">72L</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
 
+        <script type="text/javascript">
+          $('#contents').hide();
+          $('#toggle-contents').click(function(event){
+              event.preventDefault();
+              $('#contents').slideToggle(200);
+            }             
+          );
 
+          //smooth scrolling
+    $('a[href*=#]:not(.accordion-toggle)').on('click', function(event){  
+      if($(this).attr("href").match(/^#/)&&!($(this).attr("href").match(/^#myCarousel/))){   
+        event.preventDefault();
+        $('html,body').animate({scrollTop:$(this.hash).offset().top}, 600);
+        window.location.hash = this.hash;
+        return false;
+      }
+    });
+    $(window).bind("mousewheel", function() {
+        $("html, body").stop();
+    });
+        </script>
+       
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>

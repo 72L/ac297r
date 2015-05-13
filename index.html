@@ -103,7 +103,7 @@ The multi-label prediction for the entire article is then an average of the bina
 This improvement, we think, comes from the classifier learning the grammar of the sentences containing these keywords.  For example, text scraped from a webpage containing a public health article with the word “election” next to a country name may indicate that the country name is not the subject of the public health article. Instead, the country may be mentioned as part of a link on the sidebar of the webpage. On the other hand, if the word “Ebola” is mentioned next to particular country name, then it may indicate that the country is relevant to the public health article.</p>
 
 <p>
-We investigated adding HTML tag counts (such as occurrence of “&lt;A&gt;”) in addition to n-grams as features to improve the detection of words that are mentioned as part of sidebar links instead of in the main body of the article. This approach did not improve the area under the ROC curve significantly.</p>
+We investigated adding HTML tag counts (such as occurrence of “&lt;a&gt;”) in addition to n-grams as features to improve the detection of words that are mentioned as part of sidebar links instead of in the main body of the article. This approach did not improve the area under the ROC curve significantly.</p>
 
 <p>
 Future work on the automatic location tagging process should investigate using higher resolution location names (such as city or province names) as well as better scraping techniques to obtain higher quality textual data.</p>
@@ -137,24 +137,140 @@ The collaborators working at Healthmap have built tools to predict the number of
 <p>
 We work with a dataset of geotagged Tweets obtained from the Healthmap Twitter listener, collected over the course of a year from March 2014 to March 2015. We only retrieved Tweets mentioning the term “Ebola” within a geographic boundary defined by a rectangle with its northwest corner at (12.91° N, 15.55° W) and its southwest corner at (4.06° N, 7.16° W). This captures all Tweets from Guinea, Sierra Leone, and Liberia (Figure 5). Since few Twitter users live in western Africa and even fewer have geo-tagging turned on, we were only working with 3126 Tweets in total. Official case counts were obtained from WHO reports online.</p>
 
+<p>Given the Tweets from the current week, along with the case counts from the weeks before, our goal was to predict the case counts of the current week. We first examine a baseline autoregressive model:</p>
+
+<p>
+Where  is the number of cases in the current week, andis the number of cases i weeks before the current one. The coefficients are determined by maximum likelihood estimation with the training data. To test the appropriateness of this autoregressive (AR) model on our Ebola WHO case count data, we plotted the autocorrelation function (ACF) and partial-autocorrelation function (PACF) (Figure 6) of the data. This time series displays a AR signature, more so than that of a moving average (MA) model. The AR coefficient chosen was AR(2) since the PACF seems to die down around two (or three) lags.</p>
+
+<p>Models with an added Tweet component are often used in literature to make use of the real-time nature of social media data [5]. We use the following model to incorporate the weekly Tweets time series.</p>
+
+<p>
+
+Where is the number of Tweets in the current week,  is the number of Tweets i weeks before, and   are parameters estimated with maximum likelihood methods.</p>
+
+<p>
+To improve upon the current model used in literature, we decided to add features to the data that are determined in an unsupervised manner with topic modelling and emotions keywords. Topic modelling was performed to extract a latent clustering of Tweets that probabilistically discuss different topics. A modified pLSI model (which is similar to Latent Dirichlet Allocation [6]) was used. Each Tweet is modeled as a bag of words belonging to one topic. Each of the words in the Tweet are chosen from a multinomial distribution over the vocabulary, where the distributions are determined on a per-topic basis. Expectation maximization was used in the maximum likelihood estimation of the parameters, and the number of topics (three) was chosen by inspection. This number was chosen because it seemed to produce topic words that made the most sense. A more detailed derivation can be found in the Appendix. Three topics were detected and the top words belonging in each topic were used to haracterize their “meaning”. Topic 1 had a high probability associated with words related to news outlet reports such as “cases”, “west Africa”, and “news”. Topic 2, we concluded, was mostly about vaccines and treatment, having high probability for words such as “#giveustheserum” and “vaccine”. The word “Guinea” had high probability in Tweets belonging to Topic 2 as well. The third topic seemed to have more general words pertaining to Ebola, and we could not make out a consistent theme. The proportion of labeled Tweets classified under each topic over time are shown in Figure 7 (bottom panel). Each Tweet was categorized as belonging to exactly one topic.</p>
+
+<p>
+Previous work has explored adding heuristically determined categorizations of Tweets as features to improve modelling [3]. We perform a variation of this categorization by labelling the Tweets with five emotion classes that have been studied in natural language processing literature [7]. The five emotion categories are joy, sadness, anger, affection and fear. Keywords in each category were compiled from previous work [7] and Tweets containing these words were classified into their respective categories. Tweets containing words in multiple categories were counted twice. Tweets not in English were translated to English. Not many Tweets were classified with emotions due to suboptimal translation and the fact that list of keywords for each emotion was not comprehensive. Tweets not labeled with an emotion were not included in the emotion time series analysis. The proportions of labeled Tweets classified under each emotion over time are shown in Figure 7 (top panel).</p>
+
+<p>As can be seen, the proportion of Tweets in each topic and emotion remains relatively constant over time. At the start of the outbreak, around June of 2014, the proportion of Tweets belonging to Topic 1 (Case and News Reports) seems to be high, which may indicate that news channels and official reports spoke about Ebola first, before the general population started Tweeting about it. Further investigation could look into this effect where the media plays a big role in creating hype or awareness about a particular disease. In the emotions data, there are fewer data points, so some weeks don’t have bars. Therefore, the variation in the proportion of Tweets in each category is probably mostly noise.</p>
+
+<p>
+The numbers of Tweets that fell into each emotion and topic category per week were added as features in the prediction modelling:</p>
+
 <p>
 
 
+Where is the number of Tweets in topic j during the week i weeks before the current week,  is the number of Tweets with emotion j during the week i weeks before the current week, andand  are parameters estimated with maximum likelihood methods.</p>
+
+<p>
+The results of the three models, starting with the baseline autoregressive model along with the two variants discussed above (one with Tweets data added and one with additional topic and emotion data added) are shown in Figure 8.</p>
+
+<p>As can be seen, the baseline RMSE between the actual cases and the predicted cases is 498, which is unfortunately quite high since many of the weekly case counts sum to around 500 cases. Adding the Tweet data improves prediction by 8% overall and adding the topic and emotion modelling improves the prediction by 16%.</p>
+
+<p>
+The jagged nature of the case and Tweet timeseries contributes to the jagged predicted cases time series as these models are autoregressive in nature. In addition, there seems to be some lag in the prediction, especially near the peak of cases between October and November 2014. This is a common artifact seen in results of autoregressive models. One of the key assumptions of such a model is stationarity of the time series. As the Ebola case data is from a disease outbreak, this assumption may not be valid because the rate of spread of this disease may change over time. Important factors varying in time such as the number of currently infected individuals, societal responses, and recovery (along with subsequent immunity) could contribute to the non-stationarity of this time series.</p>
+
+<p>
+Moreover, we might posit that a prediction model should produce smooth results to take into account that some of the variation in the data is due to noise. (It should not predict noise.) These concerns about the autoregressive models motivated our investigation of a hidden Markov model (HMM).</p>
+
+<p>
+Hidden Markov Model</p>
+
+<p>
+We propose a hidden Markov model shown in Figure 9A. At each time point, there are 4 hidden states that correspond to 4 different populations. We use the well known SEIR epidemic model [8-10] to model the dynamics of the Ebola outbreak. The state  represents the population susceptible to Ebola at time . The state represents the population that has been exposed to Ebola but is not infectious at time . The state represents the population that is infected and infectious at time . The state represents the population that has recovered at time . A proportion of these R cases are those who are dead. People flow through the 4 possible states in the order: S to E to I to R, and the rates of change of the proportion of the entire population in each state is well described by known differential equations [8]. The differential equations describing the dynamics of the SEIR model were discretized as has been done similarly in others’ work [11], as follows:</p>
+
+<p>
+Where  is a parameter determining the rate of exposure (people moving from the susceptible the exposed group),  is a parameter determining the incubation period (which affects movement from the exposed the infectious group), and  is a parameter determining the rate of recovery (or death) (moving from the infectious the recovered/dead group). Initial conditions of the SEIR model are another parameter that must be determined.</p>
+
+<p>
+We initially used a deterministic model for the hidden states, where the proportions of the population in each of the four SEIR states were determined for each time step using the above equations. We used three emitted states, with Gaussian emission probabilities:</p>
+
+<p>
+ where  is the number of Tweets on week ,  is the number of cases reported by the WHO on week , and  is the number of deaths reported by the WHO on week . The parameters , , ,,, and govern the Gaussian emission probabilities and the parameters ,, and govern the SEIR transition (and its initial conditions). These were all determined with maximum likelihood estimation. (See Appendix for details.) The RMSE of the number of cases predicted by the deterministic model compared to the official case counts is 474 cases. This is comparable to the performance of the autoregressive models.</p>
+
+<p>
+To create a “true” hidden Markov model, we added transition probabilities to the hidden state transitions in the SEIR model:
+</p>
+
+<p>
+where  models Gaussian noise in the transition to the next state. Newly introduced hidden transition parameters were also fitted using maximum likelihood estimation (See Appendix for details). The RMSE of the number of cases predicted by this model (with transition probabilities added) compared to the official case counts is 472 cases. This is comparable to the performance of the deterministic HMM and the autoregressive models. The results are shown in Figure 9B.
+</p>
+
+<p>FIGURE 9</p>
+
+<p>Compared to autoregressive models, the RMSE of the case predictions are similar. However, the RMSE is calculated assuming that the WHO numbers are the ground truth, when there is obviously quite some noise in their reporting. Our generative, Bayesian approach assumes an underlying model that takes into account the dynamics of an outbreak. It then assigns a probability distribution to observed Tweet, case, and death counts. This is able to therefore produce predictions that are smoother, without the noise seen in Figure 8. In this sense, this HMM is a better model in that it is able to reason about our belief of the truth of the number of cases and deaths vs. relying on noisy numbers reported by the WHO.</p>
+
+<p>
+Most importantly, we are able to provide epidemiologists with an estimate of the parameters ,, and  describing the underlying outbreak dynamics, which would be extremely useful in forecasting future cases or in comparing the dynamics of different outbreaks across regions.</p>
+
+<p>
+In addition, the HMM was optimized by maximising the likelihood of observing three data sets (Tweets, cases, and deaths), whereas the autoregressive models were only fitted to the cases data. This means that our HMM approach is more general and may have produced even better results if it were not also optimized to explain the Tweets data. Indeed, removing the Tweets component improves the case-count RMSE by about 4.</p>
+
+<p>
+We understand that there are limitations of the current assumptions of this HMM. Firstly, we assumed that the Tweets are proportional to the number of infected people. However, in reality, Tweets could also be dependent on the proportion of the population in the exposed (E) state in addition to just the proportion of the population in the infected (I) state. Furthermore, the number of Tweets in the previous week may play a large role in determining the number of Tweets in the next week (accounting for hype and network effects). Future work should investigate adding these complex dependencies to the model.  
+Part III. Visualization of Curated Media Reports Covering Ebola</p>
+
+<p>
+We built a tool for data visualization and exploration so that the curated media data could be explored by epidemiologists with ease. The tool is a Javascript-powered visualization that takes as input a JSON file of data that has been curated by humans or the tagging tool discussed above. It automatically generates a responsive webpage that is interactive and intuitive to use. Figure 9 highlights selected features of the webpage that is created. The demo we built uses a set of Ebola media alerts from March 2014 to March 2015.</p>
+
+<p>
+There are two main parts of the visualization. The map portion displays the locations of the media alerts, allowing users to pan and zoom around the world to see which locations are being covered by the media. The timeline portion displays the number of disease cases and deaths along with the volume of incoming alerts, allowing users to visualize media “hype” as the disease progresses. Both the timeline and the map are interactive, so adjusting the time window displayed using the timeline navigation window updates both parts of the visualization.</p>
+
+<p>
+We used a Javascript package called AMCharts to display the information on a map and on a timeline. Multiple custom modifications to the Javascript code were made to make the display interactive. For instance, a custom modification was added so that a user’s actions on the timeline immediately led to updates on the map reflecting those temporal changes.</p>
+
+<p>Conclusion</p>
+
+<p>
+Our goal for this project was to contribute useful computational tools to the Healthmap effort. We identified three major areas of the Healthmap process that could be improved.</p>
+
+<p>
+First, we created an automatic tagging tool that tags incoming media alerts by disease and location. We showed that our tagging tool produced a 30% and 16% improvement over baseline methods for disease and location tagging, respectively. We believe this tool has the ability to make an enormous impact by cutting the amount of time it takes human curators to manually curate media alerts.
+Secondly, we improved upon currently accepted autoregressive predictive models by adding features learned in an unsupervised manner from the text. These modifications reduced the prediction error by 16% compared to the baseline. We also introduced a hidden Markov model that models the dynamics of the outbreak and incorporates a natural way to think about how Tweets and official case counts are generated probabilistically. This model is able to perform comparably to the autoregressive models currently used by epidemiologists.
+Thirdly, we built a map and timeline visualization that allows users to explore and learn from media data in an interactive way. Users who tried this tool expressed delight at the responsive interactivity of the website that enabled them to visualize the spread of media attention geographically and temporally.</p>
+
+<p>
+This project had multiple learning outcomes that enriched our educational experience. Several of the techniques used in this project were completely new to us when we started. These included topic modelling, hidden Markov modelling, and the Javascript visualization library called AMCharts. This project gave us the opportunity to experience the full stack of the data science process, from raw data organization and labelling, to prediction, and to visualization. In the end, we were able to provide three major contributions to our collaborators at Healthmap who will be able to use our tools to better serve epidemiologists and hospitals fighting disease.</p>
+
+<p>
+Acknowledgements</p>
+
+<p>
+We would like to thank the AC297r staff, especially Pavlos and Rahul for their support and guidance. We would like to thank Nico Preston, Wesley Chen, and Jared Hawkins for their help in obtaining data from Healthmap databases and advice regarding previous Healthmap work. We would like to thank Kriste Krstovski for helpful discussion about topic modelling. This work would not have been possible or as enjoyable without the engaging discussions we had with faculty, staff, and our fellow students at IACS.</p>
+
+<p>
+
+
+References</p>
+
+<li>
+Brownstein, J. S., Freifeld, C. C., Reis, B. Y., &amp; Mandl, K. D. (2008). Surveillance Sans Frontieres: Internet-based emerging infectious disease intelligence and the HealthMap project. PLoS medicine, 5(7), e151.</li>
+<li>
+Achrekar, H., Gandhe, A., Lazarus, R., Yu, S. H., &amp; Liu, B. (2011, April). Predicting flu trends using twitter data. In Computer Communications Workshops (INFOCOM WKSHPS), 2011 IEEE Conference on (pp. 702-707). IEEE.</li>
+<li>
+Lamb, A., Paul, M. J., &amp; Dredze, M. (2013, June). Separating Fact from Fear: Tracking Flu Infections on Twitter. In HLT-NAACL (pp. 789-795).</li>
+<li>
+Culotta, A. (2010, July). Towards detecting influenza epidemics by analyzing Twitter messages. In Proceedings of the first workshop on social media analytics (pp. 115-122). ACM.</li>
+<li>
+Nagar, R., Yuan, Q., Freifeld, C. C., Santillana, M., Nojima, A., Chunara, R., &amp; Brownstein, J. S. (2014). A Case Study of the New York City 2012-2013 Influenza Season With Daily Geocoded Twitter Data From Temporal and Spatiotemporal Perspectives. Journal of medical Internet research, 16(10).</li>
+<li>
+Mei, Q., &amp; Zhai, C. (2001). A note on EM algorithm for probabilistic latent semantic analysis. In Proceedings of the International Conference on Information and Knowledge Management, CIKM.</li>
+<li>
+Qadir, A., &amp; Riloff, E. Learning Emotion Indicators from Tweets: Hashtags, Hashtag Patterns, and Phrases.</li>
+<li>
+Hethcote, H. W. (2000). The mathematics of infectious diseases. SIAM review,42(4), 599-653.</li>
+<li>
+Wearing, H. J., Rohani, P., &amp; Keeling, M. J. (2005). Appropriate models for the management of infectious diseases. PLoS medicine, 2(7), e174.</li>
+<li>
+Lekone, P. E., &amp; Finkenstädt, B. F. (2006). Statistical inference in a stochastic epidemic SEIR model with control intervention: Ebola as a case study.Biometrics, 62(4), 1170-1177.</li>
+<li>
+Pasquali, C.  (2014). On the SIR Equations and Their Transform into a Markov Transition Matrix (or, the Markovization of the SIR Model). The Pasqualian, http://thepasqualian.com/?p=1862.</li>
+<li>
 
 
 
-
-
-
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="https://help.github.com/pages">https://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/72L">72L</a></p>

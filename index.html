@@ -143,7 +143,7 @@ We work with a dataset of geotagged Tweets obtained from the Healthmap Twitter l
 
 <p>Given the Tweets from the current week, along with the case counts from the weeks before, our goal was to predict the case counts of the current week. We first examine a baseline autoregressive model:</p>
 
-<p>$ax = b$</p>
+<p>$$ax = b$$</p>
 
 <p>
 Where  is the number of cases in the current week, andis the number of cases i weeks before the current one. The coefficients are determined by maximum likelihood estimation with the training data. To test the appropriateness of this autoregressive (AR) model on our Ebola WHO case count data, we plotted the autocorrelation function (ACF) and partial-autocorrelation function (PACF) (Figure 6) of the data. This time series displays a AR signature, more so than that of a moving average (MA) model. The AR coefficient chosen was AR(2) since the PACF seems to die down around two (or three) lags.</p>

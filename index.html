@@ -82,7 +82,7 @@ The location of the subject of each media alert was determined by human curation
 Unlike disease type detection, more than 10% of media alerts in the training data are tagged with more than one country. These are articles that mention multiple countries in West Africa, for instance. Therefore, we adjusted our feature engineering and data analysis approach. A novel approach was formulated, where a trained classifier makes decisions on each location keyword mentioned in the article as opposed to the entire article (Figure 2).
 </p>
 
-<p>FIGURE 1</p>
+<p>FIGURE 2</p>
 
 <p>
 We started with a predefined list of all country names and detected the occurrence of these country names in each alert. Each mention of a country was then used as a data point in the training process. Thus, if a news article mentioned multiple countries, then that article would contribute multiple data points to our training data.</p>
@@ -95,7 +95,7 @@ Each mention of the country was labeled with a binary target: 1 if the subject o
 The multi-label prediction for the entire article is then an average of the binary decisions for each of the country name mentions in the article text. The threshold for when to call these averaged scores significant was varied and the ROC curve in Figure 3 was produced.
 </p>
 
-<p>FIGURE 3</p>
+<p>FIGURE 2</p>
 
 <p>As can be seen, our SVC n-gram classifier performs significantly better than the intuitive approach (a Naive Bayes classifier using only country name frequency). Our n-gram and SVM classifier increases the area under the ROC curve to 0.937 (green line) which is a 16% improvement over the Naive Bayes method (area under ROC curve = 0.819).</p>
 

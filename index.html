@@ -52,9 +52,30 @@
 <p>Our last contribution is a visualization that displays the Ebola media alerts on a map and a timeline, allowing epidemiologists to discover patterns in the data at a glance. Similar visualizations already exist in Healthmap; however, we take a fresh approach by implementing new, interactive features that furthers discovery through data exploration.</p>
 
 <h3>
-<a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part I. Automatic Curation of Incoming News Alerts</h3>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>News alerts related to public health are collected with automated web scraping tools at Healthmap every day. In order to organize this massive collection of links, healthmap curators tediously label each document with relevant information such as location and disease. One of the most important goals of our current work is to make that process faster using machine learning.</p>
+
+<p>Our collaborators provided a dataset of 3455 alerts, which have been curated by humans. Most of the alerts are news articles from Google News. Other media sources included ProMED, Twitter, and official government agencies like the World Health Organization (WHO). The alerts were curated and labeled with the relevant disease and the latitude and longitude of the event referenced in the article.  The name of the location is also specified at varying levels of resolution. Some articles were labeled with an entire country, while some were tagged with more specific locations such as individual provinces or cities. The diseases mentioned were Ebola (717 alerts), influenza (1638 alerts), Dengue fever (980 alerts), and Cholera (120  alerts). The alerts were collected by Healthmap over a span of 3 months (Dec 2014 to Mar 2015).</p>
+
+<p>The training dataset included links to each media alert, and web scraping was done to collect text data. As can be expected from scraping any web source, we encountered permissions errors and broken links. Some websites did not allow programmatic access (i.e. ProMED) while some articles were no longer visible. In addition, many of the articles had been translated through a Google Translate API which does not allow easy scraping. To solve this problem, we scraped the original article link from the Google API page and translated it ourselves using another API called goslate. After this web scraping and translation process, we ended up with usable text from 2500 alerts.</p>
+
+<h4>Disease Tagging</h4>
+
+<p>We developed a tool to label each article with the disease it covers. Intuitively, one might suppose that disease tagging could be done simply by detecting disease names that occur in the text. Indeed, we use this method as a baseline for comparison. The challenge of using this naive method is that very often, text scraped from websites contain disease names that are not the main subject of the article. For instance, many disease names were found in links to other articles on the website.</p>
+
+<p>We decided that the output of this classification task would be one disease label per media alert, since the vast majority (99.7%) of the human curated data had only one disease label per alert. So that our classifier would be able to detect alerts not mentioning any of the four disease types in our training data, we added a set of 100 news articles that were related to public health but did not cover any of the four diseases originally in our data set.</p>
+
+<p>Textual data was transformed into vectors of numbers that machine learning algorithms can work with. For each article, the occurrence of a list of disease-specific words such as the disease name and words such as “flu shot”, “fever”, or “H1N1” were counted. Furthermore, we counted the frequency of the 5 words (to the left and the right) surrounding these detected words. The words surrounding these keywords were also combined to make n-grams of length n = 1 to 5, whose frequencies were also counted. This approach enabled us to make use of some of the information in the ordering of the words around the disease keywords. A vector containing the counts of each of the n-grams detected was generated per article. The vectors, along with the human-curated disease labels were used to train a support vector classifier (SVC).  A random forest classifier was also tested, but it did not perform as well in cross-validation testing.</p>
+
+<p>Figure 1 displays our results on a receiver-operator characteristic (ROC) curve. Varied across the ROC is the threshold of significance on the probability values generated by the classifier . These probabilities are those from an out-of-bag prediction that the article is labeled with a certain disease type. We also show the ROC results from the baseline classifier, which is a Naive Bayes classifier trained on only the counts of the disease names in each article.  As can be seen, our bag of n-grams SVC performs quite well, with an area under the ROC curve close to 1.00 (green line). The accuracy and precision was around 0.98 for all disease types. The area under the ROC curve for the baseline approach (blue line) is only 0.66. Therefore, our method gives a significant improvement (~30% improvement) over the baseline intuitive/naive classifier that utilizes only the frequency of disease names in the text.</p>
+
+<p>
+
+
+
+
+
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
